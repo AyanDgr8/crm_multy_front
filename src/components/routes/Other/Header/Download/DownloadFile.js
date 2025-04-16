@@ -59,63 +59,40 @@ const DownloadFile = () => {
                 if (value === null || value === undefined) return false;
                 
                 switch(type) {
-                    case 'bigint':
-                        // For bigint fields, only search if searchTerm is a number
-                        return !isNaN(searchTerm) && value.toString().includes(searchTerm);
                     case 'date':
-                        // For date fields, try to match in various formats
                         if (!value) return false;
                         const dateStr = new Date(value).toLocaleDateString();
                         return dateStr.toLowerCase().includes(searchTerm);
                     case 'enum':
-                        // For enum fields, exact match only
                         return value.toLowerCase() === searchTerm;
                     default:
-                        // For varchar and other string fields
                         return value.toString().toLowerCase().includes(searchTerm);
                 }
             };
 
-            // Basic search criteria grouped by data type
+            // Search based on new schema fields
             return (
-                // VARCHAR fields
-                safeIncludes(item.loan_card_no, searchTermLower) ||
-                safeIncludes(item.c_name, searchTermLower) ||
-                safeIncludes(item.product, searchTermLower) ||
-                safeIncludes(item.CRN, searchTermLower) ||
-                safeIncludes(item.bank_name, searchTermLower) ||
-                safeIncludes(item.banker_name, searchTermLower) ||
+                safeIncludes(item.first_name, searchTermLower) ||
+                safeIncludes(item.middle_name, searchTermLower) ||
+                safeIncludes(item.last_name, searchTermLower) ||
+                safeIncludes(item.phone_no_primary, searchTermLower) ||
+                safeIncludes(item.phone_no_secondary, searchTermLower) ||
+                safeIncludes(item.whatsapp_num, searchTermLower) ||
+                safeIncludes(item.email_id, searchTermLower) ||
+                safeIncludes(item.gender, searchTermLower, 'enum') ||
+                safeIncludes(item.address, searchTermLower) ||
+                safeIncludes(item.country, searchTermLower) ||
+                safeIncludes(item.company_name, searchTermLower) ||
+                safeIncludes(item.designation, searchTermLower) ||
+                safeIncludes(item.website, searchTermLower) ||
+                safeIncludes(item.other_location, searchTermLower) ||
+                safeIncludes(item.contact_type, searchTermLower, 'enum') ||
+                safeIncludes(item.source, searchTermLower) ||
+                safeIncludes(item.disposition, searchTermLower, 'enum') ||
                 safeIncludes(item.agent_name, searchTermLower) ||
-                safeIncludes(item.tl_name, searchTermLower) ||
-                safeIncludes(item.fl_supervisor, searchTermLower) ||
-                safeIncludes(item.DPD_vintage, searchTermLower) ||
-                safeIncludes(item.resi_address, searchTermLower) ||
-                safeIncludes(item.office_address, searchTermLower) ||
-                safeIncludes(item.calling_feedback, searchTermLower) ||
-                safeIncludes(item.field_feedback, searchTermLower) ||
-
-                // BIGINT fields
-                safeIncludes(item.POS, searchTerm, 'bigint') ||
-                safeIncludes(item.emi_AMT, searchTerm, 'bigint') ||
-                safeIncludes(item.loan_AMT, searchTerm, 'bigint') ||
-                safeIncludes(item.paid_AMT, searchTerm, 'bigint') ||
-                safeIncludes(item.settl_AMT, searchTerm, 'bigint') ||
-                safeIncludes(item.shots, searchTerm, 'bigint') ||
-                safeIncludes(item.pincode, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile, searchTerm, 'bigint') ||
-                safeIncludes(item.ref_mobile, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile_3, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile_4, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile_5, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile_6, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile_7, searchTerm, 'bigint') ||
-                safeIncludes(item.mobile_8, searchTerm, 'bigint') ||
-
-                // DATE fields
-                safeIncludes(item.paid_date, searchTermLower, 'date') ||
-
-                // ENUM fields
-                safeIncludes(item.calling_code, searchTermLower, 'enum')
+                safeIncludes(item.comment, searchTermLower) ||
+                safeIncludes(item.date_of_birth, searchTermLower, 'date') ||
+                safeIncludes(item.C_unique_id, searchTermLower)
             );
         });
 
@@ -153,53 +130,56 @@ const DownloadFile = () => {
         return value;
     };
 
-    const getColumnOrder = () => [
-        'loan_card_no','CRN', 'c_name',
-        'product', 'bank_name', 'banker_name', 
-        'mobile', 'ref_mobile','agent_name', 
-        'mobile_3', 'mobile_4', 'mobile_5', 'mobile_6', 'mobile_7', 'mobile_8',
-        'tl_name', 'fl_supervisor', 'DPD_vintage',
-        'POS', 'emi_AMT', 'loan_AMT', 'paid_AMT', 'paid_date',
-        'settl_AMT', 'shots', 'resi_address', 'pincode', 'office_address',
-        'calling_code', 'calling_feedback', 'field_feedback', 'new_track_no', 'field_code',
-        'scheduled_at', 'date_created', 'last_updated'
-    ];
+    const getColumnOrder = () => {
+        return [
+            'first_name',
+            'middle_name',
+            'last_name',
+            'phone_no_primary',
+            'phone_no_secondary',
+            'whatsapp_num',
+            'email_id',
+            'date_of_birth',
+            'gender',
+            'address',
+            'country',
+            'company_name',
+            'designation',
+            'website',
+            'other_location',
+            'contact_type',
+            'source',
+            'disposition',
+            'agent_name',
+            'comment',
+            'scheduled_at',
+            'date_created',
+            'last_updated'
+        ];
+    };
 
     const getColumnHeader = (key) => {
         const headers = {
-            'loan_card_no': 'Loan Card No',
-            'CRN': 'CRN',
-            'c_name': 'Customer Name',
-            'product': 'Product',
-            'bank_name': 'Bank Name',
-            'banker_name': 'Banker Name',
-            'mobile': 'Mobile',
-            'ref_mobile': 'Ref Mobile',
-            'agent_name': 'Agent Name',
-            'mobile_3': 'Mobile 3',
-            'mobile_4': 'Mobile 4',
-            'mobile_5': 'Mobile 5',
-            'mobile_6': 'Mobile 6',
-            'mobile_7': 'Mobile 7',
-            'mobile_8': 'Mobile 8',
-            'tl_name': 'TL Name',
-            'fl_supervisor': 'FL Supervisor',
-            'DPD_vintage': 'DPD Vintage',
-            'POS': 'POS',
-            'emi_AMT': 'EMI Amount',
-            'loan_AMT': 'Loan Amount',
-            'paid_AMT': 'Paid Amount',
-            'paid_date': 'Paid Date',
-            'settl_AMT': 'Settlement Amount',
-            'shots': 'Shots',
-            'resi_address': 'Residence Address',
-            'pincode': 'Pincode',
-            'office_address': 'Office Address',
-            'calling_code': 'Calling Code',
-            'calling_feedback': 'Calling Feedback',
-            'field_feedback': 'Field Feedback',
-            'new_track_no': 'New Track No',
-            'field_code': 'Field Code',
+            'first_name': 'First Name',
+            'middle_name': 'Middle Name',
+            'last_name': 'Last Name',
+            'phone_no_primary': 'Primary Phone',
+            'phone_no_secondary': 'Secondary Phone',
+            'whatsapp_num': 'WhatsApp',
+            'email_id': 'Email',
+            'date_of_birth': 'Date of Birth',
+            'gender': 'Gender',
+            'address': 'Address',
+            'country': 'Country',
+            'company_name': 'Company',
+            'designation': 'Designation',
+            'website': 'Website',
+            'other_location': 'Other Location',
+            'contact_type': 'Contact Type',
+            'source': 'Source',
+            'disposition': 'Disposition',
+            'agent_name': 'Agent',
+            'comment': 'Comment',
             'scheduled_at': 'Scheduled At',
             'date_created': 'Created Date',
             'last_updated': 'Last Updated'
@@ -271,32 +251,40 @@ const DownloadFile = () => {
     };
 
     const handleDownload = () => {
-        if (!data.length) {
+        if (!filteredData.length) {
             setError('No data available to download');
             return;
         }
 
         try {
-            const orderedData = data.map(row => {
-                const orderedRow = {};
+            const worksheet = XLSX.utils.json_to_sheet(filteredData.map(row => {
+                const formattedRow = {};
                 getColumnOrder().forEach(key => {
-                    orderedRow[getColumnHeader(key)] = formatTableValue(row[key]);
+                    let value = row[key];
+                    // Format dates
+                    if (key === 'date_of_birth' || key === 'scheduled_at' || key === 'date_created' || key === 'last_updated') {
+                        value = value ? formatDateTime(value) : '';
+                    }
+                    // Format name fields
+                    if (['first_name', 'middle_name', 'last_name'].includes(key)) {
+                        value = value || '';
+                    }
+                    formattedRow[getColumnHeader(key)] = value;
                 });
-                return orderedRow;
-            });
+                return formattedRow;
+            }));
 
-            const ws = XLSX.utils.json_to_sheet(orderedData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Customer Data");
-            
-            const startStr = startDate.split('T')[0];
-            const endStr = endDate.split('T')[0];
-            const fileName = `customer_data_${startStr}_to_${endStr}.xlsx`;
-            
-            XLSX.writeFile(wb, fileName);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Customer Data');
+
+            // Generate filename with current date
+            const date = new Date();
+            const filename = `customer_data_${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}.xlsx`;
+
+            XLSX.writeFile(workbook, filename);
         } catch (error) {
-            console.error('Error downloading data:', error);
-            setError('Error downloading data. Please try again.');
+            console.error('Error downloading file:', error);
+            setError('Error downloading file. Please try again.');
         }
     };
 

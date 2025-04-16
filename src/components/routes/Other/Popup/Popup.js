@@ -39,7 +39,7 @@ const Popup = () => {
         removePopupMessage(index);
         
         // Then navigate to the customer record
-        navigate(`/customers/phone/${customer.mobile}`, { 
+        navigate(`/customers/phone/${customer.phone_no_primary}`, { 
             state: { 
                 customer: customer,
                 fromReminder: true,
@@ -73,10 +73,8 @@ const Popup = () => {
                 >
                     <div className="popup-content">
                         <div className="customer-details">
-                            <p><strong>Name:</strong> {message.customer?.c_name}</p>
-                            <p><strong>Loan Card:</strong> {message.customer?.loan_card_no}</p>
-                            {/* <p><strong>CRN:</strong> {message.customer?.CRN}</p> */}
-                            {/* <p><strong>Mobile:</strong> {message.customer?.mobile}</p> */}
+                            <p><strong>Name:</strong> {message.customer?.first_name} {message.customer?.middle_name || ''} {message.customer?.last_name}</p>
+                            <p><strong>Phone:</strong> {message.customer?.phone_no_primary}</p>
                             <p><strong>Agent:</strong> {message.customer?.agent_name || 'Not Assigned'}</p>
                             {message.customer?.team_name && (
                                 <p><strong>Team:</strong> {message.customer?.team_name}</p>

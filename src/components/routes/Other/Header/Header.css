@@ -10,8 +10,23 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.logo-link {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.logo-link:hover {
+    opacity: 0.9;
+}
+
 .logo {
     height: 3.25rem;
+    width: auto;
+    cursor: pointer;
+}
+
+.header-container > .logo {
+    cursor: default;
 }
 
 .header-right {

@@ -345,17 +345,13 @@ const SearchForm = () => {
                     </th>
                   )}
                   <th>S.no.</th>
-                  <th>CRN</th>
-                  <th>Loan No/ Card No</th>
-                  <th>Customer Name</th>
-                  <th>Mobile</th>
-                  <th>Product</th>
-                  <th>Bank Name</th>
-                  <th>DPD Vintage</th>
-                  <th>POS</th>
-                  <th>EMI Amount</th>
-                  <th>Loan Amount</th>
-                  <th>Paid Amount</th>
+                  <th>Unique ID</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Company</th>
+                  <th>Designation</th>
+                  <th>Disposition</th>
                   <th>Agent Name</th>
               </tr>
             </thead>
@@ -380,17 +376,13 @@ const SearchForm = () => {
                     </td>
                   )}
                   <td>{(currentPage - 1) * recordsPerPage + searchResults.indexOf(customer) + 1}</td>
-                  <td>{customer.CRN}</td>
-                  <td>{customer.loan_card_no}</td>
-                  <td className="customer-name">{customer.c_name} </td>
-                  <td><a href={`tel:${customer.mobile}`}>{customer.mobile}</a></td>
-                  <td>{customer.product}</td>
-                  <td>{customer.bank_name}</td>
-                  <td>{customer.DPD_vintage}</td>
-                  <td>{customer.POS}</td>
-                  <td>{customer.emi_AMT}</td>
-                  <td>{customer.loan_AMT}</td>
-                  <td>{customer.paid_AMT}</td>
+                  <td>{customer.C_unique_id}</td>
+                  <td className="customer-name">{customer.first_name} {customer.middle_name || ''} {customer.last_name}</td>
+                  <td><a href={`tel:${customer.phone_no_primary}`}>{customer.phone_no_primary}</a></td>
+                  <td>{customer.email_id}</td>
+                  <td>{customer.company_name}</td>
+                  <td>{customer.designation}</td>
+                  <td>{customer.disposition}</td>
                   <td>{customer.agent_name}</td>
                 </tr>
               ))}

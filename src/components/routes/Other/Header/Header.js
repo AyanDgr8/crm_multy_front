@@ -152,14 +152,23 @@ const Header = () => {
 
     return (
         <div className="header-container">
-            <Link to="/customers">
+            {isLoggedIn ? (
+                <Link to="/customers" className="logo-link">
+                    <img 
+                        src="/uploads/logo.webp"
+                        className="logo"
+                        alt="Company Logo"
+                        aria-label="Logo"
+                    />
+                </Link>
+            ) : (
                 <img 
                     src="/uploads/logo.webp"
                     className="logo"
                     alt="Company Logo"
                     aria-label="Logo"
                 />
-            </Link>
+            )}
             <div className="header-right">
                 {isLoggedIn ? (
                     <>

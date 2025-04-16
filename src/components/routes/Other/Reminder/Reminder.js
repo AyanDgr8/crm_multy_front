@@ -43,7 +43,7 @@ const Reminder = () => {
 
     // Handle click on a reminder record
     const handleRecordClick = (customer) => {
-        navigate(`/customers/phone/${customer.mobile}`, { 
+        navigate(`/customers/phone/${customer.phone_no_primary}`, { 
             state: { 
                 customer: customer,
                 fromReminder: true
@@ -88,10 +88,8 @@ const Reminder = () => {
                             style={{ cursor: 'pointer' }}
                         >
                             <div className="customer-info">
-                                <p><strong>Name:</strong> {reminder.c_name}</p>
-                                <p><strong>Loan Card:</strong> {reminder.loan_card_no}</p>
-                                <p><strong>CRN:</strong> {reminder.CRN}</p>
-                                <p><strong>Mobile:</strong> {reminder.mobile}</p>
+                                <p><strong>Name:</strong> {reminder.first_name} {reminder.middle_name || ''} {reminder.last_name}</p>
+                                <p><strong>Phone:</strong> {reminder.phone_no_primary}</p>
                                 <p><strong>Agent:</strong> {reminder.agent_name}</p>
                                 {reminder.team_name && (
                                     <p><strong>Team:</strong> {reminder.team_name}</p>

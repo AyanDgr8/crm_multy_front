@@ -8,13 +8,6 @@
     padding: 0.25rem;
 }
 
-.header-mapping-container{
-    display: grid;
-    margin: 0;
-    padding: 0.25rem;
-    grid-template-columns: 150px 200px;
-    gap: 25px;
-}
 
 .upload_new_headiiii {
     color: #364C63;
@@ -122,11 +115,10 @@
 }
 
 .upload-form {
-    flex: 1;
-    width: 30%;
+    margin: auto;
 }
 
-.upload-result {
+/* .upload-result {
     margin-top: 3rem;
     width: 60vw;
     background-color: white;
@@ -134,7 +126,7 @@
     padding: 20px;
     height: 60vh;
     overflow-y: auto;
-}
+} */
 
 .upload_res_headii {
     font-size: 1.5rem;
@@ -217,15 +209,13 @@
 
 .error-messagee {
     position: fixed;
-    right: 2%;
     top: 40%;
-    transform: translateY(-50%);
-    width: 22.5%;
-    background-color: #fff;
-    border-left: 4px solid #dc3545;
+    left: 77.5%;
+    transform: translate(-50%, -50%);
+    width: 40%;
     padding: 20px;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(11, 10, 10, 0.991);
+    z-index: 10;
 }
 
 .btn-secondaryyyy {
@@ -329,7 +319,7 @@
 }
 
 /* Scrollbar styling */
-.upload-result::-webkit-scrollbar {
+/* .upload-result::-webkit-scrollbar {
     width: 6px;
 }
 
@@ -344,7 +334,7 @@
 
 .upload-result::-webkit-scrollbar-thumb:hover {
     background: #2a3b4d;
-}
+} */
 
 .success-text {
     color: #28a745;

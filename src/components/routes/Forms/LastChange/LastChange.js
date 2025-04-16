@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios"; // Import axios for making API requests
 import "./LastChange.css";
 
-const LastChanges = ({ customerId, mobile }) => {
+const LastChanges = ({ customerId, phone_no_primary }) => {
   const [changes, setChanges] = useState([]);
 
   useEffect(() => {
@@ -50,41 +50,27 @@ const LastChanges = ({ customerId, mobile }) => {
   
   // Field name mapping
   const fieldLabels = {
-    'loan_card_no': 'Loan Card No',
-    'c_name': 'Customer Name',
-    'product': 'Product',
-    'CRN': 'CRN',
-    'bank_name': 'Bank Name',
-    'banker_name': 'Banker Name',
+    'first_name': 'First Name',
+    'middle_name': 'Middle Name',
+    'last_name': 'Last Name',
+    'phone_no_primary': 'Phone',
+    'phone_no_secondary': 'Alternate Phone',
+    'whatsapp_num': 'Whatsapp',
+    'email_id': 'Email',
+    'date_of_birth': 'Date of Birth',
+    'gender': 'Gender',
+    'address': 'Address',
+    'country': 'Country',
+    'company_name': 'Company Name',
+    'designation': 'Designation',
+    'website': 'Website',
+    'other_location': 'Other Location',
+    'contact_type': 'Contact Type',
+    'source': 'Source',
+    'disposition': 'Disposition',
     'agent_name': 'Assigned Agent',
-    'tl_name': 'TL Name',
-    'fl_supervisor': 'FL Supervisor',
-    'DPD_vintage': 'DPD Vintage',
-    'POS': 'POS',
-    'emi_AMT': 'EMI Amount',
-    'loan_AMT': 'Loan Amount',
-    'paid_AMT': 'Paid Amount',
-    'paid_date': 'Paid Date',
-    'settl_AMT': 'Settlement Amount',
-    'shots': 'Shots',
-    'resi_address': 'Residence Address',
-    'pincode': 'Pincode',
-    'office_address': 'Office Address',
-    'mobile': 'Mobile',
-    'ref_mobile': 'Reference Mobile',
-    'mobile_3': 'Mobile 3',
-    'mobile_4': 'Mobile 4',
-    'mobile_5': 'Mobile 5',
-    'mobile_6': 'Mobile 6',
-    'mobile_7': 'Mobile 7',
-    'mobile_8': 'Mobile 8',
-    'calling_code': 'WN',
-    'calling_feedback': 'Calling Feedback',
-    'field_feedback': 'Field Feedback',
-    'new_track_no': 'New Track No',
-    'field_code': 'Field Code',
-    'scheduled_at': 'Call Scheduler',
-
+    'comment': 'Comment',
+    'scheduled_at': 'Call Scheduler'
   };
 
   return (

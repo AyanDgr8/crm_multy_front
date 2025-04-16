@@ -12,13 +12,13 @@ const AdminPortal = () => {
     // Define default permissions by role
     const getDefaultPermissions = (role) => {
         const permissions = {
-            create_customer: ['super_admin', 'it_admin'].includes(role),
-            edit_customer: ['super_admin', 'it_admin'].includes(role),
-            delete_customer: ['super_admin', 'it_admin'].includes(role),
+            create_customer: ['super_admin', 'it_admin', 'business_head'].includes(role),
+            edit_customer: ['super_admin', 'it_admin', 'business_head'].includes(role),
+            delete_customer: ['super_admin', 'it_admin', 'business_head'].includes(role),
             view_customer: ['super_admin', 'it_admin', 'business_head'].includes(role),
             view_team_customers: ['super_admin', 'it_admin', 'business_head', 'team_leader'].includes(role),
             view_assigned_customers: true, // All roles can view their own data
-            upload_document: ['super_admin', 'it_admin'].includes(role),
+            upload_document: ['super_admin', 'it_admin', 'business_head', 'team_leader'].includes(role),
             download_data: ['super_admin', 'it_admin', 'business_head', 'team_leader'].includes(role)
         };
 
@@ -125,11 +125,11 @@ const AdminPortal = () => {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             }
-            setSuccess('Teams created successfully');
+            setSuccess('Team created successfully');
             setNewTeams(['']);
             fetchTeams();
         } catch (err) {
-            setError('Failed to create teams');
+            setError('Failed to create team');
         }
     };
 
@@ -149,27 +149,7 @@ const AdminPortal = () => {
 
             // For role changes, set default permissions based on role
             if (field === 'role') {
-                const defaultPermissions = {
-
-                    create_customer: true,
-                    edit_customer: true,
-                    delete_customer: true,
-                    view_customer: true,
-                    view_team_customers: true,
-                    view_assigned_customers: true,
-                    upload_document: true,
-                    download_data: true
-                };
-
-                // Set role-specific permissions
-                if (value === 'team_leader') {
-                    defaultPermissions.view_customer = true;
-                } else if (value === 'user') {
-                    defaultPermissions.view_team_customers = true;
-                } else if (value === 'business_head') {
-                    // Business head gets all permissions
-                    Object.keys(defaultPermissions).forEach(key => defaultPermissions[key] = true);
-            }
+                const defaultPermissions = getDefaultPermissions(value);
 
                 return {
                     ...prev,
@@ -226,16 +206,7 @@ const AdminPortal = () => {
                 email: '',
                 team: '',
                 role: 'user',
-                permissions: {
-                    create_customer: true,
-                    edit_customer: true,
-                    delete_customer: true,
-                    view_customer: true,
-                    view_team_customers: true,
-                    view_assigned_customers: true,
-                    upload_document: true,
-                    download_data: true
-                }
+                permissions: getDefaultPermissions('user')
             });
             fetchUsers();
         } catch (err) {
@@ -250,7 +221,7 @@ const AdminPortal = () => {
             <h2 className='admin-portal-heading'>Admin Portal</h2>
 
             <div className="sectionn">
-                <h3 className='create-team-heading'>Create Teams</h3>
+                <h3 className='create-team-heading'>Create Team</h3>
                 {newTeams.map((team, index) => (
                     <div key={index} className="team-inputt">
                         <input

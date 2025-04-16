@@ -12,7 +12,7 @@ export const PopupProvider = ({ children }) => {
     setPopupMessages(prevMessages => {
       // Check if this specific message has already been shown
       const existingMessageIndex = prevMessages.findIndex(
-        msg => msg.customer?.mobile === popup.customer?.mobile
+        msg => msg.customer?.phone_no_primary === popup.customer?.phone_no_primary
       );
 
       if (existingMessageIndex !== -1) {
@@ -67,7 +67,7 @@ export const PopupProvider = ({ children }) => {
             color,
             minutesUntil,
             onClick: () => {
-              window.location.href = `/customers/phone/${reminder.mobile}`;
+              window.location.href = `/customers/phone/${reminder.phone_no_primary}`;
             }
           };
 

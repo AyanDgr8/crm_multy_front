@@ -6,42 +6,29 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./CreateForm.css";
 
 const CreateForm = () => {
-  const { mobile } = useParams();
-  const [formData, setFormData] = useState({
-    loan_card_no: '',
-    CRN: '',
-    c_name: '',
-    product: '',
-    bank_name: '',
-    banker_name: '',
-    mobile: '',
-    ref_mobile: '',
-    mobile_3: '',
-    mobile_4: '',
-    mobile_5: '',
-    mobile_6: '',
-    mobile_7: '',
-    mobile_8: '',
+  const { phone_no_primary } = useParams();
+  const [formDataa, setFormData] = useState({
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    phone_no_primary: '',
+    phone_no_secondary: '',
+    whatsapp_num: '',
+    email_id: '',
+    date_of_birth: '',
+    gender: '',
+    address: '',
+    country: '',
+    company_name: '',
+    designation: '',
+    website: '',
+    other_location: '',
+    contact_type: '',
+    source: '',
+    disposition: '',
     agent_name: '',
-    tl_name: '',
-    fl_supervisor: '',
-    DPD_vintage: '',
-    POS: '',
-    emi_AMT: '',
-    loan_AMT: '',
-    paid_AMT: '',
-    paid_date: '',
-    settl_AMT: '',
-    shots: '',
-    resi_address: '',
-    pincode: '',
-    office_address: '',
-    new_track_no: '',
-    calling_code: 'WN',
-    field_code: 'ANF',
-    scheduled_at: '',
-    calling_feedback: '',
-    field_feedback: ''
+    comment: '',
+    scheduled_at: ''
   });
 
   const [formSuccess, setFormSuccess] = useState(false);
@@ -98,14 +85,16 @@ const CreateForm = () => {
   // Validate required fields
   const validateRequiredFields = () => {
     const requiredFields = [
-      "loan_card_no", "CRN", "c_name", "product", "bank_name", "banker_name",
-      "mobile", "tl_name", "fl_supervisor", "DPD_vintage", "POS", "emi_AMT",
-      "loan_AMT", "paid_AMT", "paid_date", "settl_AMT", "shots", 
-      "resi_address", "pincode", "office_address", "new_track_no"
+      "first_name", "middle_name", "last_name",
+      "phone_no_primary", "phone_no_secondary", "whatsapp_num",
+      "email_id", "date_of_birth", "gender", "address",
+      "country", "company_name", "designation", "website",
+      "other_location", "contact_type", "source",
+      "disposition", "agent_name", "comment", "scheduled_at"
     ];
 
     for (let field of requiredFields) {
-      if (!formData[field] || formData[field].trim() === "") {
+      if (!formDataa[field] || formDataa[field].trim() === "") {
         setError(`Please fill out the "${field.replace(/_/g, ' ').toUpperCase()}" field.`);
         return false;
       }
@@ -134,7 +123,7 @@ const CreateForm = () => {
 
       const response = await axios.post(
         `${apiUrl}/customers/new`, 
-        { ...formData, duplicateAction: action },
+        { ...formDataa, duplicateAction: action },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -148,40 +137,27 @@ const CreateForm = () => {
         setFormSuccess(true);
         alert("Record added successfully!");
         setFormData({
-          loan_card_no: '',
-          CRN: '',
-          c_name: '',
-          product: '',
-          bank_name: '',
-          banker_name: '',
-          mobile: '',
-          ref_mobile: '',
-          mobile_3: '',
-          mobile_4: '',
-          mobile_5: '',
-          mobile_6: '',
-          mobile_7: '',
-          mobile_8: '',
-          agent_name: formData.agent_name,  // Preserving agent name
-          tl_name: '',
-          fl_supervisor: '',
-          DPD_vintage: '',
-          POS: '',
-          emi_AMT: '',
-          loan_AMT: '',
-          paid_AMT: '',
-          paid_date: '',
-          settl_AMT: '',
-          shots: '',
-          resi_address: '',
-          pincode: '',
-          office_address: '',
-          new_track_no: '',
-          calling_code: 'WN',
-          field_code: 'ANF',
-          scheduled_at: '',
-          calling_feedback: '',
-          field_feedback: ''
+          first_name: '',
+          middle_name: '',
+          last_name: '',
+          phone_no_primary: '',
+          phone_no_secondary: '',
+          whatsapp_num: '',
+          email_id: '',
+          date_of_birth: '',
+          gender: '',
+          address: '',
+          country: '',
+          company_name: '',
+          designation: '',
+          website: '',
+          other_location: '',
+          contact_type: '',
+          source: '',
+          disposition: '',
+          agent_name: formDataa.agent_name, // Preserving agent name
+          comment: '',
+          scheduled_at: ''
         });
         navigate('/customers');
       }
@@ -209,7 +185,7 @@ const CreateForm = () => {
 
   return (
     <div>
-      <h2 className="create_form_headiii">Create New Customer</h2>
+      <h2 className="create_form_headiii">New Record</h2>
       <div className="create-form-container">
         {error && <div className="error-messagee">{error}</div>}
         
@@ -217,8 +193,8 @@ const CreateForm = () => {
           <div className="duplicate-dialog">
             <h3>Duplicate Record Found</h3>
             <p>
-              {duplicateInfo.loan_card_no_exists 
-                ? "Loan card number already exists" 
+              {duplicateInfo.phone_no_primary_exists 
+                ? "Phone number already exists" 
                 : "CRN already exists"}
             </p>
             
@@ -227,18 +203,16 @@ const CreateForm = () => {
               <table>
                 <thead>
                   <tr>
-                    <th>CRN</th>
-                    <th>Loan Card No</th>
                     <th>Name</th>
-                    <th>Mobile</th>
+                    <th>Phone</th>
+                    <th>Company</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{duplicateInfo.existing_record.CRN}</td>
-                    <td>{duplicateInfo.existing_record.loan_card_no}</td>
-                    <td>{duplicateInfo.existing_record.c_name}</td>
-                    <td>{duplicateInfo.existing_record.mobile}</td>
+                    <td>{duplicateInfo.existing_record.first_name}</td>
+                    <td>{duplicateInfo.existing_record.phone_no_primary}</td>
+                    <td>{duplicateInfo.existing_record.company_name}</td>
                   </tr>
                 </tbody>
               </table>
@@ -252,7 +226,7 @@ const CreateForm = () => {
                   onChange={(e) => setDuplicateAction(e.target.value)}
                   className="duplicate-action-selectt"
                 >
-                  <option value="skip">Not Upload Duplicate</option>
+                  <option value="skip">Do Not Upload Duplicate</option>
                   <option value="append">Append with suffix (__1, __2, etc.)</option>
                   <option value="replace">Replace existing record</option>
                 </select>
@@ -272,177 +246,122 @@ const CreateForm = () => {
         <form onSubmit={(e) => handleSubmit(e, 'prompt')} className="create-form">
           {[
             { 
-              label: "Loan Card No", name: "loan_card_no", required: true 
+              label: "First Name", name: "first_name",required: true 
             },
             { 
-              label: "CRN", name: "CRN",  required: true 
+              label: "Middle Name", name: "middle_name" 
             },
             { 
-              label: "Customer Name", name: "c_name", required: true 
+              label: "Last Name", name: "last_name"
             },
             { 
-              label: "Product", name: "product", required: true 
+              label: "Phone", name: "phone_no_primary", required: true,
+              type: "tel", maxLength: "12"
             },
             { 
-              label: "Bank Name", name: "bank_name", required: true 
+              label: "Alternate Phone", name: "phone_no_secondary", 
+              type: "tel", maxLength: "12"
             },
             { 
-              label: "Banker Name", name: "banker_name", required: true 
+              label: "Whatsapp", name: "whatsapp_num", 
+              type: "tel", maxLength: "12"
             },
             { 
-              label: "Mobile", name: "mobile", type: "tel", 
-              maxLength: "12", required: true 
+              label: "Email" , name: "email", required: true ,
+              type: "email"
             },
             { 
-              label: "Ref Mobile", name: "ref_mobile", type: "tel", 
-              maxLength: "12",  
+              label: "Date of Birth", name: "date_of_birth", 
+              type: "date"
             },
             { 
-                label: "Mobile 3", name: "mobile_3", type: "tel", 
-                maxLength: "12",
+              label: "Address", name: "address"
             },
             { 
-                label: "Mobile 4", name: "mobile_4", type: "tel", 
-                maxLength: "12",  
+              label: "Country", name: "country"
             },
             { 
-                label: "Mobile 5", name: "mobile_5", type: "tel", 
-                maxLength: "12",  
+              label: "Company Name", name: "company_name"
             },
             { 
-                label: "Mobile 6", name: "mobile_6", type: "tel", 
-                maxLength: "12",  
+              label: "Designation", name: "designation"
             },
             { 
-                label: "Mobile 7", name: "mobile_7", type: "tel", 
-                maxLength: "12",
+              label: "Website", name: "website"
             },
             { 
-                label: "Mobile 8", name: "mobile_8", type: "tel", 
-                maxLength: "12", 
+              label: "Other Location", name: "other_location"
             },
             { 
-              label: "TL Name", name: "tl_name", required: true 
+              label: "Contact Type", name: "contact_type"
             },
             { 
-              label: "FM / Supervisor", name: "fl_supervisor", required: true 
+              label: "Source", name: "source"
             },
-            { 
-              label: "DPD / Vintage", name: "DPD_vintage", required: true 
-            },
-            {
-              label: "POS", name: "POS", required: true 
-            },
-            {
-              label: "EMI Amount", name: "emi_AMT", required: true 
-            },
-            {
-              label: "Loan Amount", name: "loan_AMT", required: true 
-            },  
-            {
-              label: "Paid Amount", name: "paid_AMT", required: true 
-            },
-            {
-              label: "Paid Date", name: "paid_date", type: "date", required: true 
-            },
-            {
-              label: "Settlement Amount", name: "settl_AMT", required: true 
-            },
-            {
-              label: "Shots", name: "shots", required: true 
-            },
-            { 
-              label: "Resi Address", name: "resi_address", required: true 
-            },
-            { 
-              label: "Pincode", name: "pincode", required: true 
-            },
-            { 
-              label: "Office Address", name: "office_address", required: true 
-            },
-            { 
-              label: "New Tracing No", name: "new_track_no",  required: true 
-            }
           ].map(({ label, name, type = "text", maxLength, required }) => (
             <div key={name} className="label-input">
               <label>{label}{required && <span className="required"> *</span>}:</label>
               <input
                 type={type}
                 name={name}
-                value={formData[name] || ''}
+                value={formDataa[name] || ''}
                 onChange={handleInputChange}
                 maxLength={maxLength}
               />
             </div>
           ))}
 
+          {/* Agent Name Field */}
+          {/* <div className="label-input">
+              <label>Agent Name:</label>
+              <input
+                  type="text"
+                  name="agent_name"
+                  value={formData.agent_name || ''}
+                  disabled
+                  className="agent-input"
+              />
+          </div> */}
+
           {/* calling_code Dropdown */}
           <div className="label-input">
-            <label>Calling Code:</label>
-            <select name="calling_code" value={formData.calling_code} onChange={handleInputChange}>
-              <option value="WN">WN</option>
-              <option value="NC">NC</option>   
-              <option value="CB">CB</option>
-              <option value="PTP">PTP</option>
-              <option value="RTP">RTP</option>
-            </select>
+              <label>Gender:</label>
+              <select name="gender" value={formDataa.gender} onChange={handleInputChange}>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+              </select>
           </div>
 
-          {/* field_code Dropdown */}
-          <div className="label-input">
-            <label>Field Code:</label>
-            <select name="field_code" value={formData.field_code} onChange={handleInputChange}>
-              <option value="ANF">ANF</option>
-              <option value="SKIP">SKIP</option>   
-              <option value="RTP">RTP</option>
-              <option value="REVISIT">REVISIT</option>
-              <option value="PTP">PTP</option>
-            </select>
-          </div>
 
           {/* Schedule Call  */}
           <div className="label-input">
-            <label>Schedule Call:</label>
-            <input
-              type="datetime-local"
-              name="scheduled_at"
-              value={formData.scheduled_at}
-              onChange={handleInputChange}
-              onKeyDown={(e) => e.preventDefault()}
-              onClick={handleScheduledAtClick}
-              style={{ cursor: 'pointer' }}
-              className="sche_input"
-            />
+              <label>Schedule Call:</label>
+              <input
+                  type="datetime-local"
+                  name="scheduled_at"
+                  value={formDataa.scheduled_at || ''}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onClick={handleScheduledAtClick}
+                  style={{ cursor: 'pointer' }}
+                  className="sche_input"
+              />
           </div>
 
-          {/* Calling Feedback Section */}
+          {/* Comment Section */}
           <div className="label-input comment">
-            <label>Calling Feedback:</label>
-            <div className="textarea-container">
-              <textarea
-                name="calling_feedback"
-                value={formData.calling_feedback}
-                onChange={handleInputChange}
-                rows="6"
-                placeholder="Max 1000 characters"
-                className="comet"
-              />
-            </div>
-          </div>
-
-          {/* Field Feedback Section */}
-          <div className="label-input comment">
-            <label>Field Feedback:</label>
-            <div className="textarea-container">
-              <textarea
-                name="field_feedback"
-                value={formData.field_feedback}
-                onChange={handleInputChange}
-                rows="6"
-                placeholder="Max 1000 characters"
-                className="comet"
-              />
-            </div>
+              <label>Comment:</label>
+              <div className="textarea-container">
+                  <textarea
+                      name="comment"
+                      value={formDataa.comment || ''}
+                      onChange={handleInputChange}
+                      rows="6"
+                      placeholder="Enter any additional comment"
+                      className="comet"
+                  />
+              </div>
           </div>
 
           <button type="submit" className="submit-btn submmit-button">

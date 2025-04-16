@@ -1,22 +1,22 @@
 // src/components/routes/Other/Header/Upload/UploadNew.js
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Papa from 'papaparse';
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 import "./UploadNew.css";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Typography, Box, FormControl, RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 const UploadNew = () => {
     const [systemHeaders] = useState([
-        "c_name", "loan_card_no",  "CRN", "agent_name","mobile",
-        "product",  "bank_name", "banker_name",  "tl_name", 
-        "fl_supervisor", "DPD_vintage", "POS", "emi_AMT", 
-        "loan_AMT", "paid_AMT", "paid_date", "settl_AMT", 
-        "shots", "resi_address", "pincode", "office_address", 
-        "ref_mobile", "mobile_3", "mobile_4", "mobile_5", "mobile_6", "mobile_7", "mobile_8", 
-        "calling_code", "calling_feedback", 
-        "field_feedback", "new_track_no", "field_code"
+        "first_name", "middle_name", "last_name",
+        "phone_no_primary", "phone_no_secondary", "whatsapp_num",
+        "email_id", "date_of_birth", "gender", "address",
+        "country", "company_name", "designation", "website",
+        "other_location", "contact_type", "source",
+        "disposition", "agent_name", "comment", 
     ]);
     const [fileHeaders, setFileHeaders] = useState([]);
     const [headerMapping, setHeaderMapping] = useState({});
@@ -26,44 +26,33 @@ const UploadNew = () => {
     const [uploadResult, setUploadResult] = useState(null);
     const [uploadId, setUploadId] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [duplicateActions, setDuplicateActions] = useState({});
+    const [duplicateRecords, setDuplicateRecords] = useState([]);
+    const [duplicateAction, setDuplicateAction] = useState('skip');
+    const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
     const navigate = useNavigate();
 
     // Header mapping from system headers to frontend labels
     const headerLabels = {
-        'c_name': 'Customer Name *',
-        'loan_card_no': 'Loan Card No *',
-        'CRN': 'CRN *',
+        'first_name': 'First Name *',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'phone_no_primary': 'Phone *',
         'agent_name': 'Agent Name *',
-        'mobile': 'Mobile *',
-        'product': 'Product',
-        'bank_name': 'Bank Name',
-        'banker_name': 'Banker Name',
-        'tl_name': 'TL Name',
-        'fl_supervisor': 'FL Supervisor',
-        'DPD_vintage': 'DPD Vintage',
-        'POS': 'POS',
-        'emi_AMT': 'EMI Amount',
-        'loan_AMT': 'Loan Amount',
-        'paid_AMT': 'Paid Amount',
-        'paid_date': 'Paid Date',
-        'settl_AMT': 'Settlement Amount',
-        'shots': 'Shots',
-        'resi_address': 'Residential Address',
-        'pincode': 'Pincode',
-        'office_address': 'Office Address',
-        'ref_mobile': 'Reference Mobile',
-        'mobile_3': 'Mobile 3',
-        'mobile_4': 'Mobile 4',
-        'mobile_5': 'Mobile 5',
-        'mobile_6': 'Mobile 6',
-        'mobile_7': 'Mobile 7',
-        'mobile_8': 'Mobile 8',
-        'calling_code': 'Calling Code',
-        'calling_feedback': 'Calling Feedback',
-        'field_feedback': 'Field Feedback',
-        'new_track_no': 'New Track No',
-        'field_code': 'Field Code'
+        'phone_no_secondary': 'Phone 2',
+        'whatsapp_num': 'Whatsapp',
+        'email_id': 'Email',
+        'date_of_birth': 'Date of Birth',
+        'gender': 'Gender',
+        'address': 'Address',
+        'country': 'Country',
+        'company_name': 'Company Name',
+        'designation': 'Designation',
+        'website': 'Website',
+        'other_location': 'Other Location',
+        'contact_type': 'Contact Type',
+        'source': 'Source',
+        'disposition': 'Disposition',
+        'comment': 'Comment'
     };
 
     // Helper function to convert empty values to null
@@ -101,7 +90,7 @@ const UploadNew = () => {
     const validateData = (data) => {
         const errors = [];
         data.forEach((row, index) => {
-            const mappedPhone = headerMapping['mobile'] ? row[headerMapping['mobile']] : null;
+            const mappedPhone = headerMapping['phone_no_primary'] ? row[headerMapping['phone_no_primary']] : null;
 
             // Validate phone number
             if (mappedPhone && !validatePhoneNumber(mappedPhone)) {
@@ -223,7 +212,7 @@ const UploadNew = () => {
         
         try {
             // Validate that all required fields are mapped
-            const requiredFields = ["c_name", "mobile", "agent_name"];
+            const requiredFields = ["first_name", "phone_no_primary", "agent_name"];
             const missingFields = requiredFields.filter(field => !headerMapping[field]);
             
             if (missingFields.length > 0) {
@@ -304,6 +293,12 @@ const UploadNew = () => {
                 setError('No records to process. Please check your data.');
             }
 
+            if (result.duplicates && result.duplicates.length > 0) {
+                handleDuplicates(result.duplicates);
+            } else {
+                handleConfirmDuplicates();
+            }
+
         } catch (error) {
             console.error('Upload error:', error);
             setError(error.message || 'Failed to upload file');
@@ -312,56 +307,262 @@ const UploadNew = () => {
         }
     };
 
-    // Handle final confirmation
-    const handleConfirmation = async (proceed) => {
-        if (!proceed) {
-            setUploadResult(null);
-            return;
-        }
+    const handleDuplicates = (duplicates) => {
+        // Create a formatted display of duplicates
+        const formattedDuplicates = duplicates.map(dup => ({
+            new: {
+                name: dup.new_record[headerMapping['first_name']] || 'N/A',
+                phone: dup.new_record[headerMapping['phone_no_primary']] || 'N/A',
+                email: dup.new_record[headerMapping['email_id']] || 'N/A',
+                agent: dup.agent_name || 'N/A'
+            },
+            existing: {
+                name: dup.existing_record.first_name || 'N/A',
+                phone: dup.existing_record.phone_no_primary || 'N/A',
+                email: dup.existing_record.email_id || 'N/A',
+                agent: dup.existing_record.agent_name || 'N/A'
+            }
+        }));
 
-        setIsUploading(true);
-        setError("");
+        setDuplicateRecords(formattedDuplicates);
+        setShowDuplicateDialog(true);
+    };
 
-        const apiUrl = process.env.REACT_APP_API_URL;
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            setError('Authentication required. Please login again.');
-            setIsUploading(false);
-            navigate('/customers');
-            return;
-        }
-
+    const handleConfirmDuplicates = async () => {
         try {
-            const config = {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            };
+            setIsUploading(true);
+            setError("");
 
-            const response = await axios.post(`${apiUrl}/upload/confirm`, {
-                uploadId: uploadResult.uploadId,
-                proceed,
-                duplicateActions
-            }, config);
+            const apiUrl = process.env.REACT_APP_API_URL;
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                setError('Authentication required. Please login again.');
+                setIsUploading(false);
+                navigate('/customers');
+                return;
+            }
+
+            // Create a map of actions for each duplicate
+            const duplicateActions = duplicateRecords.reduce((acc, record, index) => {
+                acc[index] = record.action || 'skip';
+                return acc;
+            }, {});
+
+            const response = await axios.post(
+                `${apiUrl}/upload/confirm`,
+                {
+                    uploadId: uploadResult.uploadId,
+                    proceed: true,
+                    duplicateActions
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
 
             if (response.data.success) {
                 setUploadResult(null);
+                setShowDuplicateDialog(false);
                 navigate('/customers');
             } else {
-                setError(response.data.message || 'Failed to complete upload');
+                setError(response.data.message || 'Failed to process upload');
             }
         } catch (error) {
-            if (error.response?.status === 403) {
-                setError('Session expired. Please login again.');
-                navigate('/customers');
-            } else {
-                setError(error.response?.data?.message || 'Failed to complete upload');
-            }
+            console.error('Confirmation error:', error);
+            setError(error.response?.data?.message || 'Failed to confirm upload');
+        } finally {
             setIsUploading(false);
         }
     };
+
+    // Memoize the dialog content
+    const duplicateDialog = useMemo(() => (
+        <Dialog 
+            open={showDuplicateDialog} 
+            onClose={() => setShowDuplicateDialog(false)} 
+            maxWidth="lg" 
+            fullWidth
+            TransitionProps={{
+                mountOnEnter: true,
+                unmountOnExit: true
+            }}
+        >
+            <DialogTitle sx={{ 
+                backgroundColor: '#364C63', 
+                color: 'white',
+                fontSize: '1.25rem',
+                fontWeight: 600,
+                padding: '0.5rem 2rem'
+            }}>
+                <Box>
+                    <Typography variant="h6">Duplicate Records Found</Typography>
+                    {error && (
+                        <Typography variant="subtitle2" sx={{ mt: 1, color: '#ffcdd2' }}>
+                            {error.split('\n').map((msg, index) => (
+                                <div key={index}>{msg}</div>
+                            ))}
+                        </Typography>
+                    )}
+                </Box>
+                <IconButton
+                    aria-label="close"
+                    onClick={() => setShowDuplicateDialog(false)}
+                    sx={{ 
+                        position: 'absolute', 
+                        right: 8, 
+                        top: 8,
+                        color: 'white'
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ p: 3, mt: 1 }}>
+                {duplicateRecords.map((record, idx) => (
+                    <Box key={idx} sx={{ 
+                        mb: 8, 
+                        borderBottom: idx < duplicateRecords.length - 1 ? '2px solid #eee' : 'none'
+                    }}>
+                        <TableContainer sx={{ mb: 1, padding: '0' }}>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell sx={{ 
+                                            width: '15%', 
+                                            backgroundColor: '#f5f5f5',
+                                            fontWeight: 600,
+                                            fontSize: '1rem',
+                                            color: '#364C63',
+                                            padding: '8px'
+                                        }}>
+                                            Field
+                                        </TableCell>
+                                        <TableCell sx={{ 
+                                            width: '42.5%',
+                                            backgroundColor: '#e8f5e9',
+                                            color: '#2e7d32',
+                                            fontWeight: 600,
+                                            fontSize: '1rem',
+                                            padding: '8px'
+                                        }}>
+                                            New Record
+                                        </TableCell>
+                                        <TableCell sx={{ 
+                                            width: '42.5%',
+                                            backgroundColor: '#EF6F53',
+                                            color: 'white',
+                                            fontWeight: 600,
+                                            fontSize: '1rem',
+                                            padding: '8px'
+                                        }}>
+                                            Existing Record
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell sx={{ backgroundColor: '#fafafa', padding: '8px' }}>Name</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#f1f8f1', padding: '8px' }}>{record.new.name}</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#fff5f5', padding: '8px' }}>{record.existing.name}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell sx={{ backgroundColor: '#fafafa', padding: '8px' }}>Phone</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#f1f8f1', padding: '8px' }}>{record.new.phone}</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#fff5f5', padding: '8px' }}>{record.existing.phone}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell sx={{ backgroundColor: '#fafafa', padding: '8px' }}>Email</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#f1f8f1', padding: '8px' }}>{record.new.email}</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#fff5f5', padding: '8px' }}>{record.existing.email}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell sx={{ backgroundColor: '#fafafa', padding: '8px' }}>Agent</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#f1f8f1', padding: '8px' }}>{record.new.agent}</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#fff5f5', padding: '8px' }}>{record.existing.agent}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        <Box sx={{ 
+                            backgroundColor: '#f8f9fa',
+                            p: 1,
+                            borderRadius: 1
+                        }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1, color: '#364C63' }}>
+                                How would you like to handle this duplicate?
+                            </Typography>
+                            <FormControl component="fieldset">
+                                <RadioGroup
+                                    row
+                                    value={record.action || 'skip'}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setDuplicateRecords(prev => 
+                                            prev.map((r, i) => 
+                                                i === idx ? { ...r, action: value } : r
+                                            )
+                                        );
+                                    }}
+                                >
+                                    <FormControlLabel
+                                        value="skip"
+                                        control={<Radio size="small" />}
+                                        label="Skip"
+                                        sx={{ mr: 3 }}
+                                    />
+                                    <FormControlLabel
+                                        value="append"
+                                        control={<Radio size="small" />}
+                                        label="Add as new"
+                                        sx={{ mr: 3 }}
+                                    />
+                                    <FormControlLabel
+                                        value="replace"
+                                        control={<Radio size="small" />}
+                                        label="Update existing"
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Box>
+                    </Box>
+                ))}
+            </DialogContent>
+            <DialogActions sx={{ 
+                p: 3, 
+                borderTop: '1px solid #eee',
+                backgroundColor: '#fafafa'
+            }}>
+                <Button 
+                    onClick={() => setShowDuplicateDialog(false)}
+                    disabled={isUploading}
+                    sx={{ mr: 1 }}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleConfirmDuplicates}
+                    variant="contained"
+                    color="primary"
+                    disabled={isUploading}
+                    sx={{ 
+                        backgroundColor: '#364C63',
+                        '&:hover': {
+                            backgroundColor: '#2b3d4f'
+                        }
+                    }}
+                >
+                    {isUploading ? 'Processing...' : 'Proceed'}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    ), [duplicateRecords, showDuplicateDialog, isUploading]);
+
+    // Render function that returns the memoized content
+    const renderDuplicateDialog = () => duplicateDialog;
 
     const downloadSampleData = () => {
         const link = document.createElement('a');
@@ -390,9 +591,7 @@ const UploadNew = () => {
                     accept=".csv,.xlsx,.xls"
                     className="file-input"
                 />
-                {/* {selectedFileName && (
-                    <span className="selected-file">Selected file: {selectedFileName}</span>
-                )} */}
+                
             </div>
             <div className="containerr">
                 <div className="upload-form">
@@ -437,99 +636,14 @@ const UploadNew = () => {
 
                 {uploadResult && (
                 <div className="upload-result">
-                    <h3 className="upload_res_headii">Upload Summary</h3>
+                    {/* <h3 className="upload_res_headii">Upload Summary</h3>
                     <p className="upload_res_para">Total Records: {uploadResult.totalRecords || 0}</p>
                     <p className="upload_res_para">Duplicate Entries: {uploadResult.duplicateCount || 0}</p>
-                    <p className="upload_res_para">Unique Records: {uploadResult.uniqueRecords || 0}</p>
+                    <p className="upload_res_para">Unique Records: {uploadResult.uniqueRecords || 0}</p> */}
 
                     {uploadResult.duplicates && uploadResult.duplicates.length > 0 && (
-                        <div className="duplicate-records">
-                            <table className="duplicate-records-table">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>CRN</th>
-                                        <th>Loan Card No</th>
-                                        <th>Name</th>
-                                        <th>Mobile</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {uploadResult.duplicates.map((record, index) => (
-                                        <>
-                                            <tr key={`new-${index}`} className="new-record">
-                                                <td className="duplicate-status-new">New Record</td>
-                                                <td>{record.new_record[headerMapping['CRN']] || ''}</td>
-                                                <td>{record.new_record[headerMapping['loan_card_no']] || ''}</td>
-                                                <td>{record.new_record[headerMapping['c_name']] || ''}</td>
-                                                <td>{record.new_record[headerMapping['mobile']] || ''}</td>
-                                                <td rowSpan="2" className="action-cell">
-                                                    <select 
-                                                        value={duplicateActions[index] || 'skip'} 
-                                                        onChange={(e) => {
-                                                            setDuplicateActions(prev => ({
-                                                                ...prev,
-                                                                [index]: e.target.value
-                                                            }));
-                                                        }}
-                                                        className="duplicate-action-select"
-                                                    >
-                                                        <option value="skip">Do not upload</option>
-                                                        <option value="append">Append with suffix (__1, __2, etc.)</option>
-                                                        <option value="replace">Replace existing record</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr key={`existing-${index}`} className="existing-record">
-                                                <td className="duplicate-status-existing">Existing Record</td>
-                                                <td>{record.existing_record.CRN || ''}</td>
-                                                <td>{record.existing_record.loan_card_no || ''}</td>
-                                                <td>{record.existing_record.c_name || ''}</td>
-                                                <td>{record.existing_record.mobile || ''}</td>
-                                            </tr>
-                                        </>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        renderDuplicateDialog()
                     )}
-
-                    <div className="confirmation-buttons">
-                        {(() => {
-                            // Calculate records to be processed
-                            const uniqueCount = uploadResult.uniqueRecords || 0;
-                            const duplicateActionsCount = Object.values(duplicateActions).reduce((acc, action) => {
-                                if (action === 'append' || action === 'replace') {
-                                    return acc + 1;
-                                }
-                                return acc;
-                            }, 0);
-                            const totalToProcess = uniqueCount + duplicateActionsCount;
-
-                            // Generate appropriate message
-                            let message = totalToProcess > 0 ? 
-                                `Would you like to proceed with processing ${totalToProcess} record${totalToProcess !== 1 ? 's' : ''}?` :
-                                'Please select actions for duplicate records to proceed.';
-
-                            return <p>{message}</p>;
-                        })()}
-                        <button 
-                            onClick={() => handleConfirmation(true)}
-                            className="btn btn-success"
-                            disabled={isUploading || (uploadResult.uniqueRecords === 0 && 
-                                Object.values(duplicateActions).every(action => !action || action === 'skip'))}
-                        >
-                            {isUploading ? 'Uploading...' : 'Yes, Upload'}
-                        </button>
-                        <button 
-                            onClick={() => handleConfirmation(false)}
-                            className="btn btn-danger"
-                            disabled={isUploading}
-                        >
-                            No, Cancel
-                        </button>
-                    </div>
                 </div>
             )}
 
