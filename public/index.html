@@ -16,7 +16,6 @@
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
@@ -37,11 +36,146 @@
   
     <title>MultyComm CRM</title>
   </head>
-  <body oncontextmenu ="return false;">
+  <body oncontextmenu="return false;">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!-- <script src="https://cdn.botpress.cloud/webchat/v2.2/inject.js"></script>
-    <script src="https://files.bpcontent.cloud/2024/11/07/12/20241107124010-LK85UH6U.js"></script> -->
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // Create the floating button
+        const popupBtn = document.createElement("button");
+        popupBtn.id = "popup-btn";
+        popupBtn.textContent = "Open UCP";
+        popupBtn.style.position = "fixed";
+        popupBtn.style.bottom = "20px";
+        popupBtn.style.left = "20px";
+        popupBtn.style.backgroundColor = "#007bff";
+        popupBtn.style.color = "white";
+        popupBtn.style.border = "none";
+        popupBtn.style.padding = "12px 20px";
+        popupBtn.style.borderRadius = "50px";
+        popupBtn.style.cursor = "pointer";
+        popupBtn.style.fontSize = "16px";
+        popupBtn.style.fontWeight = "bold";
+        popupBtn.style.boxShadow = "2px 2px 10px rgba(0, 0, 0, 0.2)";
+        popupBtn.style.zIndex = "9999";
+        document.body.appendChild(popupBtn);
+
+        // Create the popup container
+        const popupContainer = document.createElement("div");
+        popupContainer.id = "popup-container";
+        popupContainer.style.display = "none";
+        popupContainer.style.position = "fixed";
+        popupContainer.style.bottom = "60px";
+        popupContainer.style.left = "20px";
+        popupContainer.style.width = "400px";
+        popupContainer.style.height = "500px";
+        popupContainer.style.backgroundColor = "white";
+        popupContainer.style.borderRadius = "10px";
+        popupContainer.style.boxShadow = "0px 0px 10px rgba(0, 0, 0, 0.2)";
+        popupContainer.style.overflow = "hidden";
+        popupContainer.style.zIndex = "9999";
+        document.body.appendChild(popupContainer);
+
+        // Create the close button
+        const closePopup = document.createElement("button");
+        closePopup.id = "close-popup";
+        closePopup.textContent = "X";
+        closePopup.style.position = "absolute";
+        closePopup.style.top = "5px";
+        closePopup.style.right = "10px";
+        closePopup.style.backgroundColor = "red";
+        closePopup.style.color = "white";
+        closePopup.style.border = "none";
+        closePopup.style.cursor = "pointer";
+        closePopup.style.padding = "5px 10px";
+        closePopup.style.fontSize = "14px";
+        closePopup.style.borderRadius = "50%";
+        popupContainer.appendChild(closePopup);
+
+        // Create the iframe
+        const popupIframe = document.createElement("iframe");
+        popupIframe.id = "popup-iframe";
+        popupIframe.src = "https://ucdemo.voicemeetme.com/ucp/login";
+        popupIframe.title = "UCP Embedded";
+        popupIframe.style.width = "100%";
+        popupIframe.style.height = "100%";
+        popupIframe.style.border = "none";
+        popupIframe.setAttribute("allow", "microphone; camera; autoplay");
+        popupContainer.appendChild(popupIframe);
+
+        // Open Popup
+        popupBtn.addEventListener('click', function () {
+          popupContainer.style.display = 'block';
+        });
+
+        // Close Popup
+        closePopup.addEventListener('click', function () {
+          popupContainer.style.display = 'none';
+        });
+
+        // Make the container draggable
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        popupContainer.addEventListener("mousedown", dragStart);
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", dragEnd);
+
+        function dragStart(e) {
+          if (e.target === popupContainer || e.target === closePopup) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            isDragging = true;
+          }
+        }
+
+        function drag(e) {
+          if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+            xOffset = currentX;
+            yOffset = currentY;
+            
+            popupContainer.style.transform = 
+              `translate(${currentX}px, ${currentY}px)`;
+          }
+        }
+
+        function dragEnd() {
+          initialX = currentX;
+          initialY = currentY;
+          isDragging = false;
+        }
+
+        // Responsive Design
+        function adjustForScreenSize() {
+          if (window.innerWidth <= 768) {
+            popupContainer.style.width = "90%";
+            popupContainer.style.height = "70%";
+            popupContainer.style.left = "5%";
+            // Reset transform when screen size changes
+            popupContainer.style.transform = "none";
+            xOffset = 0;
+            yOffset = 0;
+          } else {
+            popupContainer.style.width = "400px";
+            popupContainer.style.height = "500px";
+            popupContainer.style.left = "20px";
+          }
+        }
+
+        window.addEventListener("resize", adjustForScreenSize);
+        adjustForScreenSize(); // Initial adjustment
+      });
+    </script>
+
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>

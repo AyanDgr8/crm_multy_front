@@ -321,6 +321,20 @@ const UseForm = () => {
             return;
         }
 
+        // Check if any fields have actually changed
+        const changedFields = {};
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== customer[key]) {
+                changedFields[key] = formData[key];
+            }
+        });
+
+        // If no fields changed, return early without making API call
+        if (Object.keys(changedFields).length === 0) {
+            navigate("/customers");
+            return;
+        }
+
         // Validate phone number length (excluding + if present)
         const phoneLength = formData.phone_no_primary.replace('+', '').length;
         if (phoneLength < 8) {
@@ -332,10 +346,10 @@ const UseForm = () => {
             const token = localStorage.getItem('token');
             const apiUrl = process.env.REACT_APP_API_URL;
             
-            // Update customer data
+            // Update customer data - only send changed fields
             const response = await axios.put(
                 `${apiUrl}/customers/${customer.id}`, 
-                formData,
+                changedFields,
                 {
                     headers: { 
                         Authorization: `Bearer ${token}`,
