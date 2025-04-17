@@ -196,9 +196,12 @@ const AdminPortal = () => {
                 permissions: newUser.permissions
             };
             
-            const response = await axios.post(`${apiUrl}/players/users`, 
+            const response = await axios.post(`${apiUrl}/users/create`, 
                 userData,
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers: { 
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }}
             );
             setSuccess(response.data.message);
             setNewUser({
